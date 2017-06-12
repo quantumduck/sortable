@@ -12,13 +12,20 @@ product_file.close()
 
 # Divide by manufacturers first:
 
-manufacturers = [{'name': manufacturer, 'listings': []} for manufacturer in
-    set([product['manufacturer'] for product in all_products])]
+manufacturers = [
+    {'name': manufacturer.lower(), 'listings': []}
+    for manufacturer in set([product['manufacturer']
+    for product in all_products])]
 
-for manufacturer in manufacturers:
-    for listing in all_listings:
-        if listing['manufacturer'].find(manufacturer['name']) >= 0:
+manufacturers.append({'name': 'unknown', 'listings': [], 'products': []})
+
+for listing in all_listings:
+    not_found = True
+    for manufacturer in manufacturers:
+        if listing['manufacturer'].lower().find(manufacturer['name']) >= 0:
             manufacturer['listings'].append(listing)
+            not_found = False
+    if not_found:
+        manufacturers[-1]['listings'].append(listing)
 
-print manufacturers[8]['name']
-print manufacturers[8]['listings']
+print [m['name'] for m in manufacturers]
