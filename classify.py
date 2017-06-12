@@ -1,4 +1,5 @@
 import json
+import re
 
 # Load both the text files:
 
@@ -10,14 +11,16 @@ product_file = open('products.txt', 'r')
 all_products = [json.loads(line) for line in product_file.readlines()]
 product_file.close()
 
+def alpha_numeric(string):
+    return re.sub(r'[^a-z0-9]', ' ', string.lower())
+
 # Divide by manufacturers first:
 manufacturers = [
     {'name': manufacturer.lower(), 'listings': []}
     for manufacturer in set([product['manufacturer']
     for product in all_products])]
-
 # Add a catch_all for the listings that don't match:
-manufacturers.append({'name': 'unknown', 'listings': []})
+manufacturers.append({'name': 'other', 'listings': []})
 
 # Populate the manufacturers array with matching listings:
 for listing in all_listings:
@@ -36,9 +39,9 @@ matches = []
 for product in all_products:
     matches.append({'product_name': product['product_name'], 'listings': []})
     # Make a list of the basic info we have
-    key_words = product['model'].lower().split()
+    key_words = alpha_numeric(product['model']).split()
     if 'family' in product:
-        key_words += product['family'].lower().split()
+        key_words += alpha_numeric(product['family']).split()
 
     # Loop over only the listings relevant to that particular manufacturer:
     manufacturer = filter(
@@ -46,11 +49,16 @@ for product in all_products:
         manufacturers)[0]
 
     for listing in manufacturer['listings']:
-        match_count = 0
+        match = True
         for word in key_words:
-            match_count += listing['title'].lower().split().count('word')
-            print listing['title'].lower().split()
-            print word
-        if match_count > 0:
-            print product['product_name']
+            if alpha_numeric(listing['title']).find(word) < 0:
+                match = False
+        if match:
+            matches[-1]['listings'].append(listing)
+            print key_words
             print listing['title']
+
+# final_answer = open('output.txt', 'w')
+# for product in matches:
+#     final_answer.write(json.dumps(product) + '\n')
+# final_answer.close();
