@@ -59,7 +59,7 @@ for product in all_products:
             match_count += 1
             print match_count
 
-final_answer = open('output.txt', 'w')
+final_answer = open('results.txt', 'w')
 for product in matches:
     if len(product['listings']) > 0:
         final_answer.write(json.dumps(product) + '\n')
