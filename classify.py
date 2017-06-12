@@ -34,6 +34,7 @@ for listing in all_listings:
 
 # Set up array for the final results:
 matches = []
+match_count = 0
 
 # Loop over all the products:
 for product in all_products:
@@ -55,10 +56,10 @@ for product in all_products:
                 match = False
         if match:
             matches[-1]['listings'].append(listing)
-            print key_words
-            print listing['title']
+            match_count += 1
+            print match_count
 
-# final_answer = open('output.txt', 'w')
-# for product in matches:
-#     final_answer.write(json.dumps(product) + '\n')
-# final_answer.close();
+final_answer = open('output.txt', 'w')
+for product in matches:
+    final_answer.write(json.dumps(product) + '\n')
+final_answer.close();
