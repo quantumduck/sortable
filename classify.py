@@ -61,5 +61,6 @@ for product in all_products:
 
 final_answer = open('output.txt', 'w')
 for product in matches:
-    final_answer.write(json.dumps(product) + '\n')
+    if len(product['listings']) > 0:
+        final_answer.write(json.dumps(product) + '\n')
 final_answer.close();
