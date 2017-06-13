@@ -4,7 +4,7 @@ This code was written for the [Sortable coding challenge](https://sortable.com/c
 
 ## Files
 
-Other than `classify.py`, the repository contains two files with challenge data: `listings.txt` and `products.txt`. There are also some results from previous runs: `output_*.txt`.
+Other than `classify.py`, the repository contains two files with challenge data: `listings.txt` and `products.txt`. There are also some results from previous runs saved as: `output_*.txt`.
 
 ## Approach
 
