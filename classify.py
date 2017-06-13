@@ -6,7 +6,7 @@ def alpha_numeric(string):
     # This method is a bit crude, but it is only necessary for putting product
     # names and model numbers into the same format. This code would need to be
     # modified if any companies have namespaces using non-ASCII characters
-    return re.sub(r'[^a-z0-9]', ' ', string.lower())
+    return re.sub(r'[^a-z0-9.]', ' ', string.lower())
 
 def find_manufacturer(listing, manufacturers):
     # Find the manufacturer from the given list
@@ -33,9 +33,16 @@ def classify(listing, products, manufacturer):
                 key_words += alpha_numeric(product['family']).split()
                 # Search for key words in title:
                 match = True
+                # Split the title into an array of words
+                title_words = alpha_numeric(listing['title']).split()
+                # Check each word:
                 for word in key_words:
-                    if alpha_numeric(listing['title']).find(word) < 0:
+                    if word not in title_words:
                         # If a single key word is missing, declare no match:
+                        match = False
+                    elif title_words.index(word) > 2 * len(key_words):
+                        # If the key word is not found near the beginning of
+                        # the title, it is likely just an associated product.
                         match = False
                 if match:
                     if match_index >= 0:
