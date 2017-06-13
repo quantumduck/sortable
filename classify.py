@@ -23,6 +23,7 @@ def find_manufacturer(listing, manufacturers):
 def classify(listing, products, manufacturer):
     # This function returns False or the index of the product that matches
     match_index = -1
+    num_words = 0
     for index, product in enumerate(all_products):
         # Only look at products made by current manufacturer:
         if product['manufacturer'].lower() == manufacturer:
@@ -38,11 +39,20 @@ def classify(listing, products, manufacturer):
                         match = False
                 if match:
                     if match_index >= 0:
-                        print match_index
-                        print index
-                        raise ValueError(listing['title'] +
-                                    ' matched more than one product:')
+                        # If there is already a match, print some output:
+                        print listing['title']
+                        print 'matches both:'
+                        print products[match_index]['product_name']
+                        print 'and'
+                        print products[index]['product_name']
+                        if len(key_words) > num_words:
+                            print 'Using second match'
+                            match_index = index
+                            num_words = len(key_words)
+                        else:
+                            print 'Using first match'
                     match_index = index
+                    num_words = len(key_words)
     return match_index
 
 # Load all the products into memory:
@@ -74,7 +84,7 @@ while current_line != '':
         if product_index >= 0:
             matches[product_index]['listings'].append(listing)
             match_count += 1
-            print match_count
+            # print match_count
 
     # Read the next line in the file:
     current_line = listing_file.readline()
