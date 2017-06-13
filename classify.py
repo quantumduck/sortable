@@ -1,12 +1,12 @@
 import json
-import re
+# import re # no longer using regular expressions
 
 # Punctuation stripping method
 def alpha_numeric(string):
     # This method is a bit crude, but it is only necessary for putting product
     # names and model numbers into the same format. This code would need to be
     # modified if any companies have namespaces using non-ASCII characters
-    return re.sub(r'[^a-z0-9.]', ' ', string.lower())
+    return string.lower().replace('-', ' ').replace('_', ' ')
 
 def find_manufacturer(listing, manufacturers):
     # Find the manufacturer from the given list
@@ -21,9 +21,10 @@ def find_manufacturer(listing, manufacturers):
     return manufacturer
 
 def classify(listing, products, manufacturer):
-    # This function returns False or the index of the product that matches
+    # This function returns -1 or the index of the product that matches
+    # The main logic of the program is here
     match_index = -1
-    num_words = 0
+    num_words = 0 # A crude count of match quality
     for index, product in enumerate(all_products):
         # Only look at products made by current manufacturer:
         if product['manufacturer'].lower() == manufacturer:
@@ -31,35 +32,35 @@ def classify(listing, products, manufacturer):
             key_words = alpha_numeric(product['model']).split()
             if 'family' in product:
                 key_words += alpha_numeric(product['family']).split()
-                # Search for key words in title:
-                match = True
-                # Split the title into an array of words
-                title_words = alpha_numeric(listing['title']).split()
-                # Check each word:
-                for word in key_words:
-                    if word not in title_words:
-                        # If a single key word is missing, declare no match:
-                        match = False
-                    elif title_words.index(word) > 2 * len(key_words):
-                        # If the key word is not found near the beginning of
-                        # the title, it is likely just an associated product.
-                        match = False
-                if match:
-                    if match_index >= 0:
-                        # If there is already a match, print some output:
-                        print listing['title']
-                        print 'matches both:'
-                        print products[match_index]['product_name']
-                        print 'and'
-                        print products[index]['product_name']
-                        if len(key_words) > num_words:
-                            print 'Using second match'
-                            match_index = index
-                            num_words = len(key_words)
-                        else:
-                            print 'Using first match'
-                    match_index = index
-                    num_words = len(key_words)
+
+            match = True
+            # Split the title into an array of words
+            title_words = alpha_numeric(listing['title']).split()
+            # Check each word:
+            for word in key_words:
+                if word not in title_words:
+                    # If a single key word is missing, declare no match:
+                    match = False
+                elif title_words.index(word) > 2 * len(key_words):
+                    # If the key word is not found near the beginning of
+                    # the title, it is likely just an associated product.
+                    match = False
+            if match:
+                if match_index >= 0:
+                    # If there is already a match, print some output:
+                    print listing['title']
+                    print 'matches both:'
+                    print products[match_index]['product_name']
+                    print 'and'
+                    print products[index]['product_name']
+                    if len(key_words) > num_words:
+                        print 'Using second match'
+                        match_index = index
+                        num_words = len(key_words)
+                    else:
+                        print 'Using first match'
+                match_index = index
+                num_words = len(key_words)
     return match_index
 
 # Load all the products into memory:
@@ -67,7 +68,7 @@ product_file = open('products.txt', 'r')
 all_products = [json.loads(line) for line in product_file.readlines()]
 product_file.close()
 
-# Divide by manufacturers first:
+# Make a list of manufacturers:
 manufacturers = set([product['manufacturer'].lower()
                     for product in all_products])
 
@@ -92,6 +93,8 @@ while current_line != '':
             matches[product_index]['listings'].append(listing)
             match_count += 1
             # print match_count
+
+    # else: # if no manufacturer is found, assume it is not one of our products.
 
     # Read the next line in the file:
     current_line = listing_file.readline()
